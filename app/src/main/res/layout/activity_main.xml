@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="50dp">
+
+        <TextView
+            android:id="@+id/tv_city"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="loading..."
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:textSize="30sp" />
+
+
+        <TextView
+            android:id="@+id/tv_weather_drawable"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center"
+            android:layout_margin="20dp" />
+
+        <TextView
+            android:id="@+id/tv_temperature"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="°C"
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:textSize="50sp" />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/linearLayout1"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/et_citySearch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp" />
+
+        <Spinner
+            android:id="@+id/sp_citySelect"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp" />
+
+    </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btn_register"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_margin="20dp"
+            android:src="@drawable/baseline_add_24" />
+
+
+</RelativeLayout>
