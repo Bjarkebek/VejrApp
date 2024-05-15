@@ -20,12 +20,9 @@ import java.io.InputStreamReader;
 import bb.tec.vejrapp.R;
 
 public class DBHelper extends SQLiteOpenHelper {
-    private static final String TAG = DBHelper.class.getSimpleName();
-
     private Resources mResources;
     private static final String DATABASE_NAME = "city.db";
     private static final int DATABASE_VERSION = 1;
-    Context context;
     SQLiteDatabase db;
 
 
@@ -41,6 +38,10 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
 
+        // drops table
+        final String SQL_DROP_CITIES_TABLE = "DROP TABLE IF EXISTS " + DBContract.MenuEntry.TABLE_NAME + ";";
+
+        // creates table
         final String SQL_CREATE_CITIES_TABLE = "CREATE TABLE IF NOT EXISTS " + DBContract.MenuEntry.TABLE_NAME + " (" +
                 DBContract.MenuEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 DBContract.MenuEntry.CITY + " TEXT, " +
@@ -53,6 +54,8 @@ public class DBHelper extends SQLiteOpenHelper {
                 DBContract.MenuEntry.POPULATION + " INTEGER, " +
                 DBContract.MenuEntry.POPULATION_PROPER + " INTEGER" + " );";
 
+        // execute queries
+        db.execSQL(SQL_DROP_CITIES_TABLE);
         db.execSQL(SQL_CREATE_CITIES_TABLE);
 
         try {
@@ -72,6 +75,7 @@ public class DBHelper extends SQLiteOpenHelper {
         String jsonDataString = readJsonDataFromFile();
         JSONArray menuItemsJsonArray = new JSONArray(jsonDataString);
 
+        // puts JSON into db
         try {
             for(int i = 0; i < menuItemsJsonArray.length(); ++i){
                 JSONObject menuItemObject = menuItemsJsonArray.getJSONObject(i);
@@ -99,6 +103,7 @@ public class DBHelper extends SQLiteOpenHelper {
         InputStream inputStream = null;
         StringBuilder builder = new StringBuilder();
 
+        // gets document with JSON data
         try {
             String jsonDataString = null;
             inputStream = mResources.openRawResource(R.raw.dk);

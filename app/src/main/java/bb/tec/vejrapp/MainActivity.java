@@ -132,6 +132,7 @@ public class MainActivity extends AppCompatActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 searchSpinner(s.toString());
             }
+
             @Override
             public void afterTextChanged(Editable s) {
             }
@@ -147,10 +148,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        sp_citySelect.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+        sp_citySelect.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id)
-            {
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 String city = parent.getItemAtPosition(pos).toString();
                 if (city == "Select city") {
                     getWeatherFromCurrentLocation();
@@ -169,14 +169,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void searchSpinner(String text) {
-        List<String> filteredList = new ArrayList<>();
-        for(int i = 0; i < sp_citySelect.getCount(); i++){
-            String item = sp_citySelect.getItemAtPosition(i).toString();
-            if (item.toLowerCase().contains(text.toLowerCase())) {
+        List<String> filteredList = new ArrayList<>(); // new List
+        for (int i = 0; i < sp_citySelect.getCount(); i++) { // for-loop goes through every city
+            String item = sp_citySelect.getItemAtPosition(i).toString(); // selects item
+            if (item.toLowerCase().contains(text.toLowerCase())) { // if item contains input -> add item to new list
                 filteredList.add(item);
             }
         }
 
+        // make adapter with new list and puts into spinner
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, filteredList);
         sp_citySelect.setAdapter(adapter);
     }
@@ -185,6 +186,8 @@ public class MainActivity extends AppCompatActivity {
     private void fillSpinner() {
         // Fill spinner with data from database via ConnectionHelper
         try {
+
+            // gets db and opens it
             db = this.dbHelper.getReadableDatabase();
             cursor = db.rawQuery("SELECT * FROM cities", null);
             ArrayList<String> data = new ArrayList<>();
@@ -193,19 +196,21 @@ public class MainActivity extends AppCompatActivity {
             // make the first spinner option 'default'
             data.add("Select city");
 
+            // takes every item and puts cityname into the arrList<>data
             while (cursor.moveToNext()) {
                 cityName = cursor.getString(1);
                 data.add(cityName);
             }
 
-            ArrayAdapter adapter  = new ArrayAdapter(this, android.R.layout.simple_list_item_1, data);
+            // makes an adapter from arrList<>data and puts adapter into spinner
+            ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, data);
             sp_citySelect.setAdapter(adapter);
             db.close();
+
         } catch (Exception e) {
             Log.e("Spinner error: ", e.getMessage());
         }
     }
-
 
 
     @SuppressLint("MissingPermission")
@@ -252,9 +257,8 @@ public class MainActivity extends AppCompatActivity {
                             JSONObject obj = new JSONObject(response);
                             JSONArray arr = obj.getJSONArray("data");
 
-                            // Takes first or only item
+                            // Takes first or only item (there is only one item)
                             JSONObject weather = arr.getJSONObject(0);
-
 
 
                             // see https://www.weatherbit.io/api/weather-current under Example Response (JSON)
@@ -265,25 +269,24 @@ public class MainActivity extends AppCompatActivity {
                             tv_city.setText(city);
 
 
-
                             // see https://www.weatherbit.io/api/codes
-                            JSONObject  weatherJSONObject = weather.getJSONObject("weather");
+                            JSONObject weatherJSONObject = weather.getJSONObject("weather");
                             int code = weatherJSONObject.getInt("code");
 
                             // if rain
-                            if(200 <= code && code <= 522){
+                            if (200 <= code && code <= 522) {
                                 tv_weather_drawable.setBackgroundResource(R.drawable.baseline_rain);
                             }
                             // if snow
-                            if(600 <= code && code <= 623){
+                            if (600 <= code && code <= 623) {
                                 tv_weather_drawable.setBackgroundResource(R.drawable.baseline_frosty);
                             }
                             // if foggy
-                            if(700 <= code && code <= 751){
+                            if (700 <= code && code <= 751) {
                                 tv_weather_drawable.setBackgroundResource(R.drawable.baseline_foggy);
                             }
                             // if clear
-                            if(800 <= code && code <= 801){
+                            if (800 <= code && code <= 801) {
                                 // switch case to determine if it's day or night (pod: "part of day")
                                 switch (weather.getString("pod")) {
                                     case "d":
@@ -295,11 +298,9 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             }
                             // if cloudy
-                            if(802 <= code && code <= 804){
+                            if (802 <= code && code <= 804) {
                                 tv_weather_drawable.setBackgroundResource(R.drawable.baseline_cloudy);
                             }
-
-
                         } catch (Exception e) {
                             Log.e("error: ", e.getMessage());
                         }
