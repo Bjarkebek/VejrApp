@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
         askForPermissions(permissionsList);
 
 
-        dbHelper = new DBHelper(this);
+        dbHelper = new DBHelper(this); // creates dbHelper instance
 
         initGui();
     }
@@ -139,6 +139,24 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+        sp_citySelect.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                String city = parent.getItemAtPosition(pos).toString();
+                if (city == "Select city") {
+                    getWeatherFromCurrentLocation();
+                }
+                else {
+                    getWeatherFromSearchLocation(city);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                getWeatherFromCurrentLocation();
+            }
+        });
+
         findViewById(R.id.btn_register).setOnClickListener(v -> {
             if (location != null) {
                 saveUserLocation(new UserLocation(
@@ -148,32 +166,18 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        sp_citySelect.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                String city = parent.getItemAtPosition(pos).toString();
-                if (city == "Select city") {
-                    getWeatherFromCurrentLocation();
-                }
-                getWeatherFromSearchLocation(city);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                getWeatherFromCurrentLocation();
-            }
-        });
-
-
         fillSpinner();
     }
 
-    private void searchSpinner(String text) {
+    // fills spinner via search input
+    private void searchSpinner(String searchInput) {
         List<String> filteredList = new ArrayList<>(); // new List
         for (int i = 0; i < sp_citySelect.getCount(); i++) { // for-loop goes through every city
-            String item = sp_citySelect.getItemAtPosition(i).toString(); // selects item
-            if (item.toLowerCase().contains(text.toLowerCase())) { // if item contains input -> add item to new list
-                filteredList.add(item);
+            String city = sp_citySelect.getItemAtPosition(i).toString(); // selects item
+
+            // if item contains input -> add item to new list
+            if (city.toLowerCase().contains(searchInput.toLowerCase())) {
+                filteredList.add(city);
             }
         }
 
@@ -181,7 +185,6 @@ public class MainActivity extends AppCompatActivity {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, filteredList);
         sp_citySelect.setAdapter(adapter);
     }
-
 
     private void fillSpinner() {
         // Fill spinner with data from database via ConnectionHelper
@@ -213,7 +216,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    @SuppressLint("MissingPermission")
+
+
     public void getWeatherFromCurrentLocation() {
         // checks permissions
         if (ActivityCompat.checkSelfPermission(
@@ -263,10 +267,10 @@ public class MainActivity extends AppCompatActivity {
 
                             // see https://www.weatherbit.io/api/weather-current under Example Response (JSON)
                             String city = weather.getString("city_name");
-                            String temperature = Double.toString(weather.getDouble("temp"));
-
-                            tv_temperature.setText(temperature + " °C");
                             tv_city.setText(city);
+
+                            String temperature = Double.toString(weather.getDouble("temp"));
+                            tv_temperature.setText(temperature + " °C");
 
 
                             // see https://www.weatherbit.io/api/codes
@@ -312,6 +316,8 @@ public class MainActivity extends AppCompatActivity {
         });
         queue.add(stringReq);
     }
+
+
 
 
     // Method to save location to SharedPreferences

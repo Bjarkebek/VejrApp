@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 
@@ -33,8 +34,12 @@ public class DBHelper extends SQLiteOpenHelper {
 
         db = this.getWritableDatabase();
 
-        onCreate(db);
+        // if can't open database -> doesn't exists -> creates database
+        if (!this.getReadableDatabase().isOpen()) {
+            onCreate(db);
+        }
     }
+
     @Override
     public void onCreate(SQLiteDatabase db) {
 
@@ -57,6 +62,7 @@ public class DBHelper extends SQLiteOpenHelper {
         // execute queries
         db.execSQL(SQL_DROP_CITIES_TABLE);
         db.execSQL(SQL_CREATE_CITIES_TABLE);
+        Log.d("message: ", "DATABASE CREATED");
 
         try {
             readDataToDb(db);
@@ -68,38 +74,39 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+
     }
 
-    private void readDataToDb(SQLiteDatabase db) throws IOException, JSONException{
+    private void readDataToDb(SQLiteDatabase db) throws IOException, JSONException {
 
         String jsonDataString = readJsonDataFromFile();
-        JSONArray menuItemsJsonArray = new JSONArray(jsonDataString);
+        JSONArray cityList = new JSONArray(jsonDataString);
 
         // puts JSON into db
         try {
-            for(int i = 0; i < menuItemsJsonArray.length(); ++i){
-                JSONObject menuItemObject = menuItemsJsonArray.getJSONObject(i);
+            for (int i = 0; i < cityList.length(); ++i) {
+                JSONObject cityObject = cityList.getJSONObject(i);
 
-                ContentValues menuValues = new ContentValues();
+                ContentValues values = new ContentValues();
 
-                menuValues.put(DBContract.MenuEntry.CITY, menuItemObject.getString("city"));
-                menuValues.put(DBContract.MenuEntry.LAT, menuItemObject.getString("lat"));
-                menuValues.put(DBContract.MenuEntry.LNG, menuItemObject.getString("lng"));
-                menuValues.put(DBContract.MenuEntry.COUNTRY, menuItemObject.getString("country"));
-                menuValues.put(DBContract.MenuEntry.ISO2, menuItemObject.getString("iso2"));
-                menuValues.put(DBContract.MenuEntry.ADMIN_NAME, menuItemObject.getString("admin_name"));
-                menuValues.put(DBContract.MenuEntry.CAPITAL, menuItemObject.getString("capital"));
-                menuValues.put(DBContract.MenuEntry.POPULATION, menuItemObject.getString("population"));
-                menuValues.put(DBContract.MenuEntry.POPULATION_PROPER, menuItemObject.getString("population_proper"));
+                values.put(DBContract.MenuEntry.CITY, cityObject.getString("city"));
+                values.put(DBContract.MenuEntry.LAT, cityObject.getString("lat"));
+                values.put(DBContract.MenuEntry.LNG, cityObject.getString("lng"));
+                values.put(DBContract.MenuEntry.COUNTRY, cityObject.getString("country"));
+                values.put(DBContract.MenuEntry.ISO2, cityObject.getString("iso2"));
+                values.put(DBContract.MenuEntry.ADMIN_NAME, cityObject.getString("admin_name"));
+                values.put(DBContract.MenuEntry.CAPITAL, cityObject.getString("capital"));
+                values.put(DBContract.MenuEntry.POPULATION, cityObject.getString("population"));
+                values.put(DBContract.MenuEntry.POPULATION_PROPER, cityObject.getString("population_proper"));
 
-                db.insert(DBContract.MenuEntry.TABLE_NAME, null, menuValues);
+                db.insert(DBContract.MenuEntry.TABLE_NAME, null, values);
             }
-        }catch (JSONException e){
+        } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
-    private String readJsonDataFromFile() throws IOException{
+    private String readJsonDataFromFile() throws IOException {
         InputStream inputStream = null;
         StringBuilder builder = new StringBuilder();
 
@@ -109,12 +116,12 @@ public class DBHelper extends SQLiteOpenHelper {
             inputStream = mResources.openRawResource(R.raw.dk);
             BufferedReader bufferedReader = new BufferedReader(
                     new InputStreamReader(inputStream, "UTF-8"));
-            while((jsonDataString = bufferedReader.readLine()) != null){
+            while ((jsonDataString = bufferedReader.readLine()) != null) {
                 builder.append(jsonDataString);
             }
 
         } finally {
-            if(inputStream != null){
+            if (inputStream != null) {
                 inputStream.close();
             }
         }
